@@ -99,72 +99,39 @@ end
 t_Vr1 = t_Vr1 + SampleTime;
 n_t_Vr1 = n_t_Vr1 + 1;
 buff_Vr1 = [block.InputPort(1).Data, buff_Vr1(1:ws_end-1)];
-a=0;
-b=0;
-c=0;
-d=0;
-res_C=0;
-res_S=0;
 
+
+disp("___________")
+n_t_Vr1
+disp(buff_Vr1)
 
 %first run - direct calculation
 if stage_Vr1 == "initialize" 
     ws = ws_start;
     for i=1:ws
-        res_C = res_C + buff_Vr1(i)*cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        res_S = res_S + buff_Vr1(i)*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        a = a + cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        b = b + cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        c = c + cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        d = d + sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
+        result_Vr1 = result_Vr1 + buff_Vr1(i)*cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) ) * SampleTime; %time in cos goes back
     end
-    detA = (a*d - c*b);
-    result_Vr1 = (d/detA*res_C - b/detA*res_S);
+    disp("initialize Vr1 value")
+    disp(result_Vr1)
 end
 
 %initial window size calc
 if stage_Vr1 == "start_window" %recursive calc
     ws = ws_start;
-    for i=1:ws
-        res_C = res_C + buff_Vr1(i)*cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        res_S = res_S + buff_Vr1(i)*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        a = a + cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        b = b + cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        c = c + cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        d = d + sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-    end
-    detA = (a*d - c*b);
-    result_Vr1 = (d/detA*res_C - b/detA*res_S);
+    result_Vr1 = result_Vr1 + buff_Vr1(1)*cos(2*pi*f*n_t_Vr1/sr)*SampleTime - old_buff_Vr1(ws)*cos(2*pi*f*(n_t_Vr1 - ws)/sr)*SampleTime;
+    result_Vr1
+    disp("___________")
 end
 
 %changing window calc
 if stage_Vr1 == "change_window"
-    ws = current_ws_Vr1
-    for i=1:ws
-        res_C = res_C + buff_Vr1(i)*cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        res_S = res_S + buff_Vr1(i)*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        a = a + cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        b = b + cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        c = c + cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        d = d + sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-    end
-    detA = (a*d - c*b);
-    result_Vr1 = (d/detA*res_C - b/detA*res_S);
+    result_Vr1 = result_Vr1 + buff_Vr1(1)*cos(2*pi*f*n_t_Vr1/sr)*SampleTime;
 end
 
 %end window size calc
 if stage_Vr1 == "end_window"
     ws = ws_end;
-    for i=1:ws
-        res_C = res_C + buff_Vr1(i)*cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        res_S = res_S + buff_Vr1(i)*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        a = a + cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        b = b + cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        c = c + cos( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-        d = d + sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) )*sin( 2*pi*f* (t_Vr1 - (i-1)*SampleTime) );
-    end
-    detA = (a*d - c*b);
-    result_Vr1 = (d/detA*res_C - b/detA*res_S);
+    result_Vr1 = result_Vr1 + buff_Vr1(1)*cos(2*pi*f*n_t_Vr1/sr)*SampleTime - old_buff_Vr1(ws)*cos(2*pi*f*(n_t_Vr1 - ws)/sr)*SampleTime;
 end
 
 
